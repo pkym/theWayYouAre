@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Cmt">
+    <insert id="save" parameterType="cmt">
+        insert into cmt_table(cmtWriter, cmtContents, boardId, memberId)
+        values (#{cmtWriter}, #{cmtContents}, #{boardId}, #{memberId})
+    </insert>
+
+    <select id="findAll" parameterType="Long" resultType="cmt">
+        select *
+        from cmt_table
+        where boardId = #{boardId}
+        order by id desc
+    </select>
+    <select id="findLast" parameterType="Long" resultType="cmt">
+        select *
+        from cmt_table
+        where cmtCreatedTime = (select max(cmtCreatedTime) from cmt_table where boardId = #{boardId})
+    </select>
+
+</mapper>

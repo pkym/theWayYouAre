@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases> <!--parameter type 줄여주는 역할-->
+        <typeAlias type="com.member.board.dto.MemberDTO" alias="member"></typeAlias>
+        <typeAlias type="com.member.board.dto.BoardDTO" alias="board"></typeAlias>
+        <typeAlias type="com.member.board.dto.CmtDTO" alias="cmt"></typeAlias>
+    </typeAliases>
+
+</configuration>
