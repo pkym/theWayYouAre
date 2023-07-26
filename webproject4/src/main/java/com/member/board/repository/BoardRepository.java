@@ -37,7 +37,7 @@ public class BoardRepository {
     public void delete(Long id) {
         sql.delete("Board.delete",id);
     }
-
+    /** 페이징 처리된 글 불러오기*/
     public List<BoardDTO> pagingList(Map<String, Integer> pagingParams) {
         return sql.selectList("Board.pagingList",pagingParams);
     }

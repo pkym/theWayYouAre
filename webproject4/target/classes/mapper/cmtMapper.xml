@@ -7,7 +7,6 @@
         insert into cmt_table(cmtWriter, cmtContents, boardId, memberId)
         values (#{cmtWriter}, #{cmtContents}, #{boardId}, #{memberId})
     </insert>
-
     <select id="findAll" parameterType="Long" resultType="cmt">
         select *
         from cmt_table
@@ -19,5 +18,14 @@
         from cmt_table
         where cmtCreatedTime = (select max(cmtCreatedTime) from cmt_table where boardId = #{boardId})
     </select>
+    <delete id="delete" parameterType="Long">
+        delete from cmt_table where id=#{id}
+    </delete>
+    <select id="findById" parameterType="Long" resultType="cmt">
+        select * from cmt_table where id=#{id}
+    </select>
+    <update id="update" parameterType="cmt">
+        update cmt_table set cmtContents=#{cmtContents} where id=#{id}
+    </update>
 
 </mapper>

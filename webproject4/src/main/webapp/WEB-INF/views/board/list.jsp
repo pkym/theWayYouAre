@@ -7,6 +7,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <title>List</title>
@@ -18,7 +19,6 @@
 </head>
 <body>
 
-<% List<BoardDTO> boardDTOList = (List<BoardDTO>) request.getAttribute("boardList");%>
 <div class="table-responsive">
     <table class="table align-middle">
         <thead>
@@ -30,27 +30,55 @@
             <td>조회수</td>
         </tr>
         </thead>
-        <tbody>
-        <%
-            for (BoardDTO board : boardDTOList) {
-        %>
-        <tr class="align-middle">
-            <td><%=board.getBoardWriter()%>
-            </td>
-            <td><%=board.getBoardType()%>
-            </td>
-            <td><a href="/board?id=<%=board.getId()%>"><%=board.getBoardTitle()%></a>
-            </td>
-            <td><%=board.getBoardCreatedTime()%>
-            </td>
-            <td><%=board.getBoardView()%>
-            </td>
-        </tr>
-        <%}%>
+        <tbody id="boardData">
+        <!--제이쿼리로 게시판리스트들을 불러옴-->
         </tbody>
     </table>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    /** 페이지 시작시 페이징 처리된 글 목록 불러오기 */
+    $(document).ready(function () {
+        console.log("start1");
+        $.ajax({
+            type: "get",
+            url: "/board/list",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+                $.each(res, (i, item) => {
+                    $("#boardData").append(
+                        "<tr><td>" + item.boardWriter +
+                        "</td><td>" + item.boardType +
+                        "</td><td><a href='/board/detail?id=" + item.id + "'>" + item.boardTitle +
+                        "</td><td>" + item.boardCreatedDate +
+                        "</a></td><td>" + item.boardView + "</tr>"
+                    )
+                });
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    });
 
+    /** 페이지 시작시 글목록 이동 번호 불러오기 */
+    $(document).ready(function () {
+        console.log("start2");
+        $.ajax({
+            type: "get",
+            url: "/board/listNum",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    });
+
+</script>
 </body>
 </html>

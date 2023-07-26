@@ -6,6 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <title>Write</title>
@@ -17,12 +18,11 @@
 </head>
 
 <body>
-<%String loginName = (String) session.getAttribute("loginName");%>
-<%Long memberId = (Long) session.getAttribute("memberId");%>
+
 
 <form action="/board/save" method="post" onsubmit="return checkAll()">
-    <input type="hidden" name="memberId" value="<%=memberId%>">
-    <input class="form-control" type="text" name="boardWriter" value="<%=loginName%>"><br>
+    <input type="hidden" name="memberId" value="${sessionScope.memberId}">
+    <input class="form-control" type="text" name="boardWriter" value="${sessionScope.loginName}"><br>
     <label for="type">게시판 선택</label>
     <select class="form-select" name="boardType" id="type">
         <option value="자유게시판">자유게시판</option>

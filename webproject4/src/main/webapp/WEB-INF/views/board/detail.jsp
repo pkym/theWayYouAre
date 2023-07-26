@@ -8,6 +8,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <title>Detail</title>
@@ -19,13 +20,14 @@
 
 </head>
 <body>
-<% BoardDTO boardDTO = (BoardDTO) request.getAttribute("boardDTO");%>
-<p id="boardId"><%=boardDTO.getId()%>
+
+<p id="boardId">${boardDTO.id}
 </p>
-<%=boardDTO.getBoardType()%>
-<%=boardDTO.getBoardView()%>
-<%=boardDTO.getBoardTitle()%>
-<%=boardDTO.getBoardContents()%>
+${boardDTO.boardType}
+${boardDTO.boardView}
+${boardDTO.boardTitle}
+${boardDTO.boardContents}
+${boardDTO.boardCreatedTime}
 
 <button id="list">글목록</button>
 <button id="update">수정하기</button>
@@ -34,12 +36,22 @@
 
 <!-- 댓글 쓰기 -->
 <div id="cmtWrite">
-    <input type="hidden" id="memberId" value="<%=session.getAttribute("memberId")%>">
-    <input class="form-control" type="text" id="cmtWriter" value="<%=session.getAttribute("loginName")%>" readonly>
+    <input type="hidden" id="memberId" value="${sessionScope.memberId}">
+    <input class="form-control" type="text" id="cmtWriter" value="${sessionScope.loginName}" readonly>
     <input class="form-control" type="text" id="cmtContents" placeholder="내용">
     <button class="btn btn-outline-secondary" id="cmt-btn">댓글작성</button>
 </div>
-<% List<CmtDTO> cmtDTOList = (List<CmtDTO>) request.getAttribute("cmtDTOList");%>
+<!--댓글수정 -->
+<div id="cmtUpdate" style="display: none">
+    <input type="hidden" id="modalId" value="${sessionScope.memberId}">
+    <input class="form-control" type="text" id="modalWriter" value="${sessionScope.loginName}"
+           readonly/>
+    <input class="form-control" type="text" id="modalContents" name="modalContents">
+    <button class="btn btn-outline-secondary" id="cmt-upd-btn">댓글수정
+    </button>
+    <button class="btn btn-outline-secondary" type="button" id="cmt-cancel">취소</button>
+
+</div>
 <!-- 댓글 목록 -->
 <div id="cmtList">
     <div class="table-responsive">
@@ -54,27 +66,6 @@
             </tr>
             </thead>
             <tbody id="cmtTable">
-            <%
-                for (CmtDTO cmt : cmtDTOList) {
-            %>
-            <tr class="align-middle">
-                <td><%=cmt.getCmtWriter()%>
-                </td>
-                <td><%=cmt.getCmtContents()%>
-                </td>
-                <td><%=cmt.getCmtCreatedTime()%>
-                </td>
-                <td>
-                    <button id="update-btn"  >수정</button>
-                </td>
-                <td>
-                    <button id="delete-btn">삭제</button>
-                </td>
-            </tr>
-            <%
-                }
-                ;
-            %>
             </tbody>
         </table>
     </div>
@@ -87,7 +78,6 @@
 <script>
     const boardId = $("#boardId").text();
     const memberId = $("#memberId").val();
-
     /** 글 수정 페이지로 이동 요청 */
     $("#update").on('click', function () {
         location.href = "/board/update?id=" + boardId;
@@ -103,7 +93,29 @@
         location.href = "/board/delete?id=" + boardId;
     });
 
-    /** 비동기적으로 댓글 저장하고 불러오기*/
+    /** 페이지 시작시 댓글 목록 불러오기 */
+    $(document).ready(function () {
+        $.ajax({
+            type: "get",
+            url: "/board/detail/cmt?id=" + boardId,
+            dataType: "json",
+            success: function (res) {
+                $.each(res, (i, item) => {
+                    $("#cmtTable").append("<tr><td>" + item.cmtWriter +
+                        "</td><td>" + item.cmtContents +
+                        "</td><td>" + item.cmtCreatedTime +
+                        "</td><td><button class='upd-btn' data-cmt-id='" + item.id + "'>수정</button></td>" +
+                        "<td><button class='del-btn' data-cmt-id='" + item.id + "'>삭제</button></td></tr>"
+                    )
+                });
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    });
+
+    /** 댓글 작성시 댓글 저장하고 불러오기*/
     $(document).on('click', "#cmt-btn", function () {
         const cmtWriter = $("#cmtWriter").val();
         const cmtContents = $("#cmtContents").val();
@@ -123,8 +135,8 @@
                     "<tr><td>" + res.cmtWriter +
                     "</td><td>" + res.cmtContents +
                     "</td><td>" + res.cmtCreatedTime +
-                    "</td><td><button>수정</button></td>" +
-                    "<td><button>삭제</button></td></tr>"
+                    "</td><td><button class='upd-btn' data-cmt-id='" + res.id + "'>수정</button></td>" +
+                    "<td><button class='del-btn' data-cmt-id='" + res.id + "'>삭제</button></td></tr>"
                 );
                 $("#cmtContents").val('');
             },
@@ -134,10 +146,61 @@
         });
     });
 
-    /** 비동기식으로 댓글 수정하기 */
-    $('#update-btn').on('click', function () {
+    /** 댓글 삭제버튼 클릭시 댓글 삭제하기 */
+    $("#cmtTable").on("click", ".del-btn", function () {
+        let cmtId = $(this).data("cmt-id");
+        // 댓글 쓴 사람만 삭제하도록 처리하기 (memberId로 처리)
+        $.ajax({
+            type: "delete",
+            url: "/cmt/" + cmtId,
+            success: function () {
+                alert("댓글이 삭제되었습니다");
+                location.reload();
+            },
+            error: function (err) {
+                console.log("요청실패", err);
+            }
+        });
+    });
 
-    })
+    /** 댓글 수정버튼 클릭시 팝업 요청 */
+    $(document).on("click", ".upd-btn", function () {
+        let cmtId = $(this).data("cmt-id");
+        $.ajax({
+            type: "get",
+            url: "/cmt/update/" + cmtId,
+            success: function (res) {
+                $("#cmtUpdate").css('display', 'block');
+                $("#cmtWrite").css('display', 'none');
+                $("#modalContents").val(res.cmtContents);
+                $('#cmt-upd-btn').attr('data-cmt-id', cmtId)
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    });
+
+    /** 댓글 수정 요청 */
+    $(document).on("click", "#cmt-upd-btn", function () {
+        let cmtId = $(this).data("cmt-id");
+        let cmtContents = $("#modalContents").val();
+        console.log(cmtId + cmtContents);
+        $.ajax({
+            type: "post",
+            url: "/cmt/update",
+            data: {
+                "id":cmtId,
+                "cmtContents": cmtContents
+            },
+            success: function (res) {
+                console.log(res.cmtContents)
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    });
 
 </script>
 </body>

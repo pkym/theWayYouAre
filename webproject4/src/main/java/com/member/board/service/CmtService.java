@@ -22,4 +22,16 @@ public class CmtService {
     public CmtDTO findLast(Long boardId) {
         return cmtRepository.findLast(boardId);
     }
+
+    public void delete(Long id) {
+        cmtRepository.delete(id);
+    }
+
+    public CmtDTO findById(Long id) {
+        return cmtRepository.findById(id);
+    }
+
+    public void update(CmtDTO cmtDTO) {
+        cmtRepository.update(cmtDTO);
+    }
 }

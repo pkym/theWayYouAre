@@ -22,4 +22,16 @@ public class CmtRepository {
     public CmtDTO findLast(Long boardId) {
         return sql.selectOne("Cmt.findLast", boardId);
     }
+
+    public void delete(Long id) {
+        sql.delete("Cmt.delete", id);
+    }
+
+    public CmtDTO findById(Long id) {
+        return sql.selectOne("Cmt.findById",id);
+    }
+
+    public void update(CmtDTO cmtDTO) {
+        sql.update("Cmt.update", cmtDTO);
+    }
 }
