@@ -20,7 +20,7 @@
 <body>
 
 
-<form action="/board/save" method="post" onsubmit="return checkAll()">
+<form action="/board/save" method="post" enctype="multipart/form-data" onsubmit="return checkAll()">
     <input type="hidden" name="memberId" value="${sessionScope.memberId}">
     <input class="form-control" type="text" name="boardWriter" value="${sessionScope.loginName}"><br>
     <label for="type">게시판 선택</label>
@@ -31,8 +31,9 @@
         <option value="제보/알림">제보/알림</option>
     </select>
     <input class="form-control" type="text" name="boardTitle" id="title" placeholder="제목"><br>
-    <textarea class="form-control" name="boardContents" id="contents" placeholder="내용을 입력하세요"></textarea><br>
-    <input type="submit" value="작성">
+    <textarea class="form-control" rows="20" name="boardContents" id="contents" placeholder="내용을 입력하세요"></textarea><br>
+    <input class="form-control" type="file" name="boardFile">
+    <input class="btn btn-light" type="submit" value="작성">
 </form>
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
@@ -41,7 +42,7 @@
 
     /** 빈칸 삽입 방지 */
     function checkAll(){
-        if($("title").val()==null||$("#contents").val()==null){
+        if($("#title").val()==''||$("#contents").val()==''){
             alert("제목과 내용을 입력하세요")
             return false;
         }return true;

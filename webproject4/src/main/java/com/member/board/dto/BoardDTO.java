@@ -19,8 +19,6 @@ public class BoardDTO {
     private Timestamp boardCreatedTime;
     private int boardView;
     private Long memberId;
-    //private int fileAttached;
-    //private MultipartFile boardFile;
-    //private String originalFileName;
-   // private String storedFileName;
+    private int fileAttached;
+    private MultipartFile boardFile;
 }

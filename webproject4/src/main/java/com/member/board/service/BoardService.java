@@ -1,11 +1,15 @@
 package com.member.board.service;
 
 import com.member.board.dto.BoardDTO;
+import com.member.board.dto.BoardFileDTO;
 import com.member.board.dto.PageDTO;
 import com.member.board.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +22,36 @@ public class BoardService {
     /**
      * 글 저장 메소드
      */
-    public int save(BoardDTO boardDTO) {
-        return boardRepository.save(boardDTO);
+    public int save(BoardDTO boardDTO) throws IOException {
+        if (boardDTO.getBoardFile().isEmpty()) {
+            return boardRepository.save(boardDTO);
+        } else {
+            // 첨부파일 여부를 1로 바꿈
+            boardDTO.setFileAttached(1);
+            System.out.println("바뀌나" + boardDTO);
+            // board_table에 글만 저장
+            boardRepository.save(boardDTO);
+            // board_table에서 저장된 글의 아이디를 가져오자
+            Long boardId = boardRepository.findOne().getId();
+            // boardDTO에서 저장된 첨부파일의 이룸 가져와서 변환
+            MultipartFile boardFile = boardDTO.getBoardFile();
+            String originalFileName = boardFile.getOriginalFilename();
+            String storedFileName = System.currentTimeMillis() + "_" + originalFileName;
+            // boardfiledto 객체 생성 및 DTO 값 넣기
+            BoardFileDTO boardFileDTO = new BoardFileDTO();
+            boardFileDTO.setBoardId(boardId);
+            boardFileDTO.setOriginalFileName(originalFileName);
+            boardFileDTO.setStoredFileName(storedFileName);
+            // 로컬에 저장하기
+            String savePath = "/Users/keeyoungmin/Downloads/springboot/" + storedFileName;
+            boardFile.transferTo(new File((savePath)));
+
+            return boardRepository.saveS(boardFileDTO);
+        }
     }
 
     /**
-     * 게시글 가져오기 메소드
+     * 게시글 전체 가져오기 메소드
      */
     public List<BoardDTO> findAll() {
         return boardRepository.findAll();
@@ -34,6 +62,13 @@ public class BoardService {
      */
     public BoardDTO findById(Long id) {
         return boardRepository.findById(id);
+    }
+
+    /**
+     * 게시 파일 가져오기 메소드
+     */
+    public BoardFileDTO findByIdFile(Long id) {
+        return boardRepository.findByIdFile(id);
     }
 
     /**
@@ -64,15 +99,18 @@ public class BoardService {
      * 2page==> 3
      * 3page==> 6
      */
-    int pageLimit = 3; // 한 페이지당 보여줄 글 갯수
-    int blockLimit = 3; // 하단에 보여줄 페이지 번호 갯수
+    int pageLimit = 5; // 한 페이지당 보여줄 글 갯수
+    int blockLimit = 10; // 하단에 보여줄 페이지 번호 갯수
 
     public List<BoardDTO> pagingList(int page) {
         int pageStart = (page - 1) * pageLimit;
-        Map<String, Integer> pagingParams = new HashMap<>();
-        pagingParams.put("start", pageStart);
-        pagingParams.put("limit", pageLimit);
-        List<BoardDTO> pagingList = boardRepository.pagingList(pagingParams);
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setStartPage(pageStart);
+        pageDTO.setMaxPage(pageLimit);
+        List<BoardDTO> pagingList = boardRepository.pagingList(pageDTO);
+        //Map<String, Integer> pagingParams = new HashMap<>();
+        //pagingParams.put("start", pageStart);
+        //pagingParams.put("limit", pageLimit);
 
         return pagingList;
     }
@@ -100,4 +138,6 @@ public class BoardService {
         pageDTO.setEndPage(endPage);
         return pageDTO;
     }
+
+
 }

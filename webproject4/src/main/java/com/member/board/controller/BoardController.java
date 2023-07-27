@@ -1,6 +1,7 @@
 package com.member.board.controller;
 
 import com.member.board.dto.BoardDTO;
+import com.member.board.dto.BoardFileDTO;
 import com.member.board.dto.CmtDTO;
 import com.member.board.dto.PageDTO;
 import com.member.board.service.BoardService;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -35,11 +37,11 @@ public class BoardController {
      * 글쓰기페이지에서 데이터를 받아와서 저장 후 리스트로 이동
      */
     @PostMapping("/save")
-    public String save(@ModelAttribute BoardDTO boardDTO) {
-        System.out.println("글 저장하기" + boardDTO);
+    public String save(@ModelAttribute BoardDTO boardDTO) throws IOException {
+        System.out.println(boardDTO);
         int saveResult = boardService.save(boardDTO);
         if (saveResult > 0) {
-            return "redirect:/board/list";
+            return "redirect:/board/";
         } else {
             return "board/write";
         }
@@ -95,9 +97,11 @@ public class BoardController {
         boardService.updateView(id);
         // 게시글 데이터를 가져와서 board/detail.jsp에 출력
         BoardDTO boardDTO = boardService.findById(id);
+        BoardFileDTO boardFileDTO = boardService.findByIdFile(id);
+        System.out.println(boardFileDTO);
+        model.addAttribute("boardFileDTO", boardFileDTO);
         model.addAttribute("boardDTO", boardDTO);
         model.addAttribute("page", page);
-
         // 좋아요 수 가져오기
         return "board/detail";
     }

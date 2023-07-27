@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString
 public class PageDTO {
     private int page;
-    private int maxPage; // 전체페이지 갯수
+    private int maxPage; // 한페이지당 보여줄 글 개수
     private int startPage;
     private int endPage;
 }

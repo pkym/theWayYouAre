@@ -20,18 +20,28 @@
 
 </head>
 <body>
-
-<p id="boardId">${boardDTO.id}
-</p>
-${boardDTO.boardType}
-${boardDTO.boardView}
-${boardDTO.boardTitle}
-${boardDTO.boardContents}
-${boardDTO.boardCreatedTime}
-
-<button id="list">글목록</button>
-<button id="update">수정하기</button>
-<button id="delete">삭제하기</button>
+<button class="btn btn-light" id="list">글목록</button>
+<button class="btn btn-light" id="update">수정하기</button>
+<button class="btn btn-light" id="delete">삭제하기</button>
+<div class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <c:if test="${boardDTO.fileAttached==1}">
+                <img style="max-width: 500px; max-height: 500px;"
+                     src="/Users/keeyoungmin/Downloads/springboot/${boardFileDTO.storedFileName}">
+            </c:if>
+        </div>
+    </div>
+    <div style="display: none" id="boardId">${boardDTO.id}</div>
+    <div class="card-body">
+        <div>${boardDTO.boardType}</div>
+        <div>${boardDTO.boardCreatedTime}</div>
+        <h3>${boardDTO.boardTitle}</h3>
+        <h4>${boardDTO.boardContents}</h4>
+        <span>조회수 ${boardDTO.boardView}</span>
+        <span id="cmtNum">댓글수</span>
+    </div>
+</div>
 
 
 <!-- 댓글 쓰기 -->
@@ -50,7 +60,6 @@ ${boardDTO.boardCreatedTime}
     <button class="btn btn-outline-secondary" id="cmt-upd-btn">댓글수정
     </button>
     <button class="btn btn-outline-secondary" type="button" id="cmt-cancel">취소</button>
-
 </div>
 <!-- 댓글 목록 -->
 <div id="cmtList">
@@ -85,7 +94,7 @@ ${boardDTO.boardCreatedTime}
 
     /** 리스트 페이지로 이동요청*/
     $("#list").on("click", function () {
-        location.href = "/board/list";
+        location.href = "/board/";
     });
 
     /** 글 삭제하기 요청*/
@@ -101,13 +110,14 @@ ${boardDTO.boardCreatedTime}
             dataType: "json",
             success: function (res) {
                 $.each(res, (i, item) => {
-                    $("#cmtTable").append("<tr><td>" + item.cmtWriter +
-                        "</td><td>" + item.cmtContents +
+                    $("#cmtTable").append("<tr class='" + item.id + "'><td>" + item.cmtWriter +
+                        "</td><td id='" + item.id + "'>" + item.cmtContents +
                         "</td><td>" + item.cmtCreatedTime +
                         "</td><td><button class='upd-btn' data-cmt-id='" + item.id + "'>수정</button></td>" +
                         "<td><button class='del-btn' data-cmt-id='" + item.id + "'>삭제</button></td></tr>"
                     )
                 });
+                $("#cmtNum").append("<span>"+res.length+"</span>");
             },
             error: function (err) {
                 console.log(err);
@@ -132,8 +142,8 @@ ${boardDTO.boardCreatedTime}
             success: function (res) {
                 console.log(res)
                 $("#cmtTable").prepend(
-                    "<tr><td>" + res.cmtWriter +
-                    "</td><td>" + res.cmtContents +
+                    "<tr class='" + res.id + "'><td>" + res.cmtWriter +
+                    "</td><td id='" + res.id + "'>" + res.cmtContents +
                     "</td><td>" + res.cmtCreatedTime +
                     "</td><td><button class='upd-btn' data-cmt-id='" + res.id + "'>수정</button></td>" +
                     "<td><button class='del-btn' data-cmt-id='" + res.id + "'>삭제</button></td></tr>"
@@ -155,12 +165,20 @@ ${boardDTO.boardCreatedTime}
             url: "/cmt/" + cmtId,
             success: function () {
                 alert("댓글이 삭제되었습니다");
-                location.reload();
+                $("tr").remove("." + cmtId);
+                //location.reload();
             },
             error: function (err) {
                 console.log("요청실패", err);
             }
         });
+    });
+
+    /** 댓글 수정버튼 팝업 취소 요청 */
+    $("#cmt-cancel").on("click", function () {
+        // 댓글 수정창은 숨기고 다시 댓글 창이 보이도록 설정
+        $("#cmtUpdate").css('display', 'none');
+        $("#cmtWrite").css('display', 'block');
     });
 
     /** 댓글 수정버튼 클릭시 팝업 요청 */
@@ -170,9 +188,11 @@ ${boardDTO.boardCreatedTime}
             type: "get",
             url: "/cmt/update/" + cmtId,
             success: function (res) {
+                // 댓글 창을 숨기고 댓글 수정창을 띄워준다
                 $("#cmtUpdate").css('display', 'block');
                 $("#cmtWrite").css('display', 'none');
                 $("#modalContents").val(res.cmtContents);
+                // 댓글 수정창에 있는 댓글 버튼에 data 속성을 추가해줌
                 $('#cmt-upd-btn').attr('data-cmt-id', cmtId)
             },
             error: function (err) {
@@ -185,16 +205,19 @@ ${boardDTO.boardCreatedTime}
     $(document).on("click", "#cmt-upd-btn", function () {
         let cmtId = $(this).data("cmt-id");
         let cmtContents = $("#modalContents").val();
-        console.log(cmtId + cmtContents);
         $.ajax({
             type: "post",
             url: "/cmt/update",
             data: {
-                "id":cmtId,
+                "id": cmtId,
                 "cmtContents": cmtContents
             },
             success: function (res) {
-                console.log(res.cmtContents)
+                // 댓글 수정창은 숨기고 다시 댓글 창이 보이도록 설정
+                $("#cmtUpdate").css('display', 'none');
+                $("#cmtWrite").css('display', 'block');
+                // 해당 댓글의 내용이 바뀌도록 한다
+                $("#" + cmtId).html(res.cmtContents);
             },
             error: function (err) {
                 console.log(err);

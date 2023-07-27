@@ -31,7 +31,7 @@
         <option value="제보/알림">제보/알림</option>
     </select><br>
     <input class="form-control" type="text" name="boardTitle" id="title" value="<%=boardDTO.getBoardTitle()%>"><br>
-    <textarea class="form-control" name="boardContents" id="contents"> <%=boardDTO.getBoardContents()%></textarea><br>
+    <textarea class="form-control" rows="20" name="boardContents" id="contents"> <%=boardDTO.getBoardContents()%></textarea><br>
     <input type="submit" value="수정">
 </form>
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"

@@ -28,7 +28,7 @@
                     <p id = "check-result"></p>
                     <input type="password" name="memberPw" placeholder="비밀번호">
                     <input type="text" name="memberName" placeholder="닉네임">
-                    <input type="submit" value="회원가입">
+                    <input class="btn btn-light" type="submit" value="회원가입">
                 </form>
             </div>
         </div>
@@ -46,7 +46,7 @@
                 <form action="/member/login" method="post">
                     <input type="text" name="memberEmail" placeholder="이메일">
                     <input type="password" name="memberPw" placeholder="비밀번호">
-                    <input type="submit" value="로그인하기">
+                    <input class="btn btn-light" type="submit" value="로그인하기">
                 </form>
             </div>
         </div>

@@ -3,14 +3,24 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Board">
     <insert id="save" parameterType="board">
-        insert into board_table(boardWriter, boardType, boardTitle, boardContents, memberId)
-        values(#{boardWriter}, #{boardType}, #{boardTitle}, #{boardContents}, #{memberId})
+        insert into board_table(boardWriter, boardType, boardTitle, boardContents, memberId, fileAttached)
+        values(#{boardWriter}, #{boardType}, #{boardTitle}, #{boardContents}, #{memberId}, #{fileAttached})
+    </insert>
+    <insert id="saveS" parameterType="file">
+        insert into board_file_table(originalFileName, storedFileName, boardId)
+        values(#{originalFileName},#{storedFileName},#{boardId})
     </insert>
     <select id="findAll" resultType="board">
         select * from board_table order by id desc
     </select>
     <select id="findById" parameterType="Long" resultType="board">
         select * from board_table where id=#{id}
+    </select>
+    <select id="findByIdFile" parameterType="Long" resultType="file">
+        select * from board_file_table where boardId=#{id}
+    </select>
+    <select id="findOne" resultType="board">
+        select * from board_table order by id DESC limit 1;
     </select>
     <update id="updateView" parameterType="Long">
         update board_table set boardView = boardView + 1 where id=#{id}
@@ -22,8 +32,8 @@
         update board_table set boardTitle=#{boardTitle}, boardContents=#{boardContents}, boardType=#{boardType}
         where id=#{id}
     </update>
-    <select id="pagingList" parameterType="java.util.HashMap" resultType="board">
-        select * from board_table order by id desc limit #{start}, #{limit}
+    <select id="pagingList" parameterType="page" resultType="board">
+        select * from board_table order by id desc limit #{startPage}, #{maxPage}
     </select>
     <select id="boardCount" resultType="Integer">
         select count(id) from board_table
