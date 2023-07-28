@@ -27,8 +27,7 @@
     <div class="row g-0">
         <div class="col-md-4">
             <c:if test="${boardDTO.fileAttached==1}">
-                <img style="max-width: 500px; max-height: 500px;"
-                     src="/Users/keeyoungmin/Downloads/springboot/${boardFileDTO.storedFileName}">
+                <img src="/upload/${boardFileDTO.storedFileName}">
             </c:if>
         </div>
     </div>

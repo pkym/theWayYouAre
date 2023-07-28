@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class MemberService {
     private final MemberRepository memberRepository;
 
+
     /** 회원 저장 메소드 */
     public int save(MemberDTO memberDTO) {
         return memberRepository.save(memberDTO);
@@ -40,5 +41,18 @@ public class MemberService {
         }else{
             return "no";
         }
+    }
+    /** 회원 수정페이지 메소드*/
+    public MemberDTO updateForm(Long memberId) {
+        MemberDTO memberDTO = memberRepository.findById(memberId);
+        return memberDTO;
+    }
+    /** 회원 수정 메소드 */
+    public int update(MemberDTO memberDTO){
+        return memberRepository.update(memberDTO);
+    }
+    /** 회원 탈퇴 메소드 */
+    public void delete(Long id) {
+        memberRepository.delete(id);
     }
 }

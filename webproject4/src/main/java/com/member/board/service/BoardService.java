@@ -28,7 +28,6 @@ public class BoardService {
         } else {
             // 첨부파일 여부를 1로 바꿈
             boardDTO.setFileAttached(1);
-            System.out.println("바뀌나" + boardDTO);
             // board_table에 글만 저장
             boardRepository.save(boardDTO);
             // board_table에서 저장된 글의 아이디를 가져오자
@@ -92,16 +91,14 @@ public class BoardService {
         boardRepository.delete(id);
     }
 
+    int pageLimit = 5; // 한 페이지당 보여줄 글 갯수
     /**
      * 페이징 처리 메소드
      * 1페이지당 보여지는 글 갯수 3
-     * 1page==> 0
-     * 2page==> 3
-     * 3page==> 6
+     * 1page==> pageStart: 0
+     * 2page==> pageStart: 3
+     * 3page==> pageStart: 6
      */
-    int pageLimit = 5; // 한 페이지당 보여줄 글 갯수
-    int blockLimit = 10; // 하단에 보여줄 페이지 번호 갯수
-
     public List<BoardDTO> pagingList(int page) {
         int pageStart = (page - 1) * pageLimit;
         PageDTO pageDTO = new PageDTO();
@@ -111,18 +108,17 @@ public class BoardService {
         //Map<String, Integer> pagingParams = new HashMap<>();
         //pagingParams.put("start", pageStart);
         //pagingParams.put("limit", pageLimit);
-
         return pagingList;
     }
 
+    int blockLimit = 10; // 하단에 보여줄 페이지 번호 갯수
     /**
      * 페이징 처리 메소드
      * 전체 글 갯수 조회
      * 전체 페이지 갯수 계산(10/3=3.33333 => 4)
-     * 시작 페이지 값 계산(1, 4, 7, 10,...)
-     * 끝 페이지 값 계산(3, 6, 9, 12,...)
+     * 시작 페이지 값 계산(1, 11, 21, 31,...)
+     * 끝 페이지 값 계산(10, 20, 30, 40,...)
      */
-
     public PageDTO pagingParam(int page) {
         int boardCount = boardRepository.boardCount();
         int maxPage = (int) (Math.ceil((double) boardCount / pageLimit));

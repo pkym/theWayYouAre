@@ -18,7 +18,45 @@
           integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 </head>
 <body>
-<button class="btn btn-light" id="write">글작성</button>
+<!--네비게이션-->
+<c:if test="${sessionScope.memberId != null}">
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a type="button" class="nav-link" id="write">글작성</a>
+                    </li>
+                    <li class="nav-item">
+                        <a type="button" class="nav-link" id="page">커뮤니티</a>
+                    </li>
+                    <li class="nav-item">
+                        <a type="button" class="nav-link" id="list">커뮤니티 ajax</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                                ${sessionScope.loginName}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" class="nav-link" id="update">마이페이지</a></li>
+                            <li><a type="button" class="nav-link" id="logout">로그아웃</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled">${sessionScope.memberId}</a>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-secondary" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+</c:if>
+
 <div class="table-responsive">
     <table class="table align-middle">
         <thead>
@@ -36,9 +74,8 @@
     </table>
     <div id="paging">
         <ul class="pagination">
-
-        </ul>
         <!--제이쿼리로 페이징 숫자들을 불러옴-->
+        </ul>
     </div>
 </div>
 
@@ -49,6 +86,23 @@
         console.log("클릭이벤트발생");
         location.href = "/board/save";
     });
+    /** 커뮤니티페이지로 이동요청*/
+    $("#page").on("click", function () {
+        location.href = "/board/paging";
+    })
+    /** 커뮤니티페이지로 이동요청, ajax 사용*/
+    $("#list").on("click", function () {
+        location.href = "/board/";
+    })
+    /** 회원수정 페이지로 이동요청*/
+    $("#update").on("click", function () {
+        location.href = "/member/update";
+    })
+    /** 로그아웃 요청*/
+    $("#logout").on("click", function () {
+        location.href = "/member/logout";
+    })
+
     /** 페이지 시작시 페이징 처리된 글 목록 불러오기 */
     $(document).ready(function () {
         // 게시글 불러오기
@@ -79,14 +133,14 @@
             dataType: "json",
             success: function (res) {
                 console.log(res);
-                $(".pagination").append("<li class='page-item'><a class='page-link' href='#' aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a>");
+                $(".pagination").append("<li class='page-item'><a class='page-link' id='pre' aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a>");
                 for (let i = res.startPage; i <= res.endPage; i++) {
                     $(".pagination").append(
                         "<li class='page-item'><button class='page-link' id='btn' data-btn='" + i + "'>" + i + "</button></li>"
                     )
-                };
-                $(".pagination").append("<li class='page-item'><a class='page-link' href='#' aria-label='Previous'><span aria-hidden='true'>&raquo;</span></a>");
-
+                }
+                ;
+                $(".pagination").append("<li class='page-item'><a class='page-link' id='next' aria-label='Previous'><span aria-hidden='true'>&raquo;</span></a>");
             },
             error: function (err) {
                 console.log(err);
@@ -95,14 +149,22 @@
     });
 
     /** 버튼 클릭시 해당 게시글 가져오기*/
-    $("#paging").on("click", "#btn", function () {
+    $("#paging").on("click", "button", function () {
+        // 클릭된 버튼의 색 바꿔주고 안클린된 버튼 색 되돌려주기
+        $(this).css("color","black");
+        $("button").not($(this)).css("color","blue");
+        // 현재 클릭된 버튼의 페이지 값을 가져오기
         let i = $(this).data("btn");
-        console.log(i);
+        // 값을 이전이나 다음 버튼에 저장하기
+        $("#pre").data("page",i);
+        $("#next").data("page",i);
+        // 값을 가져와 데이터 뿌리기
         $.ajax({
             type: "get",
             url: "/board/list?page=" + i,
             dataType: "json",
             success: function (res) {
+                console.log(res);
                 $("#boardData").replaceWith('<tbody id="boardData"></tbody>');
                 $.each(res, (i, item) => {
                         $("#boardData").append(
@@ -119,7 +181,6 @@
                 console.log(err);
             }
         });
-
     })
 
 

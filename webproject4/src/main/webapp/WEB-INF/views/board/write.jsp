@@ -35,6 +35,8 @@
     <input class="form-control" type="file" name="boardFile">
     <input class="btn btn-light" type="submit" value="작성">
 </form>
+<button class="btn btn-light" id="cancel">취소</button>
+
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 
@@ -47,6 +49,11 @@
             return false;
         }return true;
     }
+
+    /** 취소버튼클릭시 메인으로 이동*/
+    $("#cancel").on("click", function () {
+        location.href = "/member/";
+    });
 
 </script>
 

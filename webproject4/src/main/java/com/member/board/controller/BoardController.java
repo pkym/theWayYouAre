@@ -6,8 +6,6 @@ import com.member.board.dto.CmtDTO;
 import com.member.board.dto.PageDTO;
 import com.member.board.service.BoardService;
 import com.member.board.service.CmtService;
-import com.member.board.service.MemberService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -81,7 +79,7 @@ public class BoardController {
         return pagingList;
     }
 
-    /** 리스트페이지에 페이지 번호를 AJAX로 불러오기*/
+    /** 리스트페이지에 페이지 번호를 ajax로 불러오기*/
     @GetMapping("/listNum")
     public @ResponseBody PageDTO findNum(@RequestParam(value = "page", required = false, defaultValue = "1") int page){
         PageDTO pageDTO = boardService.pagingParam(page);
