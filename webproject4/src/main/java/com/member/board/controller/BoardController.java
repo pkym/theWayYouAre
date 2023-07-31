@@ -70,6 +70,15 @@ public class BoardController {
     }
 
     /**
+     * 메인회면에 조회수 top5 목록을 ajax로 불러오기
+     */
+    @GetMapping("/list5")
+    public @ResponseBody List<BoardDTO> findFive() {
+        List<BoardDTO> findList = boardService.findFive();
+        return findList;
+    }
+
+    /**
      * 리스트에 글 목록을 ajax로 불러오기
      */
     @GetMapping("/list")
@@ -142,7 +151,7 @@ public class BoardController {
     public String delete(@RequestParam("id") Long id) {
         System.out.println(id);
         boardService.delete(id);
-        return "redirect:/board/list";
+        return "redirect:/board/";
     }
 
 

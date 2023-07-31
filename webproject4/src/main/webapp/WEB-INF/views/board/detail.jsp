@@ -1,6 +1,4 @@
-<%@ page import="com.member.board.dto.BoardDTO" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.member.board.dto.CmtDTO" %><%--
+<%--
   Created by IntelliJ IDEA.
   User: keeyoungmin
   Date: 2023/07/24
@@ -20,65 +18,73 @@
 
 </head>
 <body>
-<button class="btn btn-light" id="list">글목록</button>
-<button class="btn btn-light" id="update">수정하기</button>
-<button class="btn btn-light" id="delete">삭제하기</button>
-<div class="card mb-3" style="max-width: 540px;">
-    <div class="row g-0">
-        <div class="col-md-4">
-            <c:if test="${boardDTO.fileAttached==1}">
-                <img src="/upload/${boardFileDTO.storedFileName}">
-            </c:if>
+<c:if test="${sessionScope.memberId != null}">
+    <button class="btn btn-light" id="list">글목록</button>
+    <!--로그인 정보와 해당 글의 작성자와 일치할 때만 수정/삭제버튼 나오기-->
+    <c:if test="${sessionScope.memberId==boardDTO.memberId}">
+        <button class="btn btn-light" id="update">수정하기</button>
+        <button class="btn btn-light" id="delete">삭제하기</button>
+    </c:if>
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <c:if test="${boardDTO.fileAttached==1}">
+                    <img src="/upload/${boardFileDTO.storedFileName}">
+                </c:if>
+            </div>
+        </div>
+        <div style="display: none" id="boardId">${boardDTO.id}</div>
+        <div class="card-body">
+            <div>${boardDTO.boardType}</div>
+            <div>${boardDTO.boardCreatedTime}</div>
+            <h3>${boardDTO.boardTitle}</h3>
+            <h4>${boardDTO.boardContents}</h4>
+            <span>조회수 ${boardDTO.boardView}</span>
+            <span id="cmtNum">댓글수</span>
         </div>
     </div>
-    <div style="display: none" id="boardId">${boardDTO.id}</div>
-    <div class="card-body">
-        <div>${boardDTO.boardType}</div>
-        <div>${boardDTO.boardCreatedTime}</div>
-        <h3>${boardDTO.boardTitle}</h3>
-        <h4>${boardDTO.boardContents}</h4>
-        <span>조회수 ${boardDTO.boardView}</span>
-        <span id="cmtNum">댓글수</span>
+
+
+    <!-- 댓글 쓰기 -->
+    <div id="cmtWrite">
+        <input type="hidden" id="memberId" value="${sessionScope.memberId}">
+        <input class="form-control" type="text" id="cmtWriter" value="${sessionScope.loginName}" readonly>
+        <input class="form-control" type="text" id="cmtContents" placeholder="내용">
+        <button class="btn btn-outline-secondary" id="cmt-btn">댓글작성</button>
     </div>
-</div>
-
-
-<!-- 댓글 쓰기 -->
-<div id="cmtWrite">
-    <input type="hidden" id="memberId" value="${sessionScope.memberId}">
-    <input class="form-control" type="text" id="cmtWriter" value="${sessionScope.loginName}" readonly>
-    <input class="form-control" type="text" id="cmtContents" placeholder="내용">
-    <button class="btn btn-outline-secondary" id="cmt-btn">댓글작성</button>
-</div>
-<!--댓글수정 -->
-<div id="cmtUpdate" style="display: none">
-    <input type="hidden" id="modalId" value="${sessionScope.memberId}">
-    <input class="form-control" type="text" id="modalWriter" value="${sessionScope.loginName}"
-           readonly/>
-    <input class="form-control" type="text" id="modalContents" name="modalContents">
-    <button class="btn btn-outline-secondary" id="cmt-upd-btn">댓글수정
-    </button>
-    <button class="btn btn-outline-secondary" type="button" id="cmt-cancel">취소</button>
-</div>
-<!-- 댓글 목록 -->
-<div id="cmtList">
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
-            <tr>
-                <td>작성자</td>
-                <td>댓글내용</td>
-                <td>글쓴날짜</td>
-                <td>수정하기</td>
-                <td>삭제하기</td>
-            </tr>
-            </thead>
-            <tbody id="cmtTable">
-            </tbody>
-        </table>
+    <!--댓글수정 -->
+    <div id="cmtUpdate" style="display: none">
+        <input type="hidden" id="modalId" value="${sessionScope.memberId}">
+        <input class="form-control" type="text" id="modalWriter" value="${sessionScope.loginName}"
+               readonly/>
+        <input class="form-control" type="text" id="modalContents" name="modalContents">
+        <button class="btn btn-outline-secondary" id="cmt-upd-btn">댓글수정
+        </button>
+        <button class="btn btn-outline-secondary" type="button" id="cmt-cancel">취소</button>
     </div>
-</div>
-
+    <!-- 댓글 목록 -->
+    <div id="cmtList">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <td>작성자</td>
+                    <td>댓글내용</td>
+                    <td>글쓴날짜</td>
+                    <td>수정하기</td>
+                    <td>삭제하기</td>
+                </tr>
+                </thead>
+                <tbody id="cmtTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</c:if>
+<c:if test="${sessionScope.memberId == null}">
+    <!-- 자연스럽게 로그인 페이지로 이동할 수 있는 방법 찾기-->
+    <a type="button" class="btn btn-light" href="/">로그인하세요</a>
+</c:if>
 
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
@@ -98,7 +104,11 @@
 
     /** 글 삭제하기 요청*/
     $("#delete").on('click', function () {
-        location.href = "/board/delete?id=" + boardId;
+        if (confirm("정말삭제하시겠습니까?") == true) {
+            location.href = "/board/delete?id=" + boardId;
+        } else {
+            return false;
+        }
     });
 
     /** 페이지 시작시 댓글 목록 불러오기 */
@@ -110,13 +120,13 @@
             success: function (res) {
                 $.each(res, (i, item) => {
                     $("#cmtTable").append("<tr class='" + item.id + "'><td>" + item.cmtWriter +
-                        "</td><td id='" + item.id + "'>" + item.cmtContents +
+                        "</td><td>" + item.cmtContents +
                         "</td><td>" + item.cmtCreatedTime +
-                        "</td><td><button class='upd-btn' data-cmt-id='" + item.id + "'>수정</button></td>" +
-                        "<td><button class='del-btn' data-cmt-id='" + item.id + "'>삭제</button></td></tr>"
+                        "</td><td><button class='upd-btn' data-cmt-id='" + item.id + "' data-cmt-own='" + item.memberId + "'>수정</button></td>" +
+                        "<td><button class='del-btn' data-cmt-id='" + item.id + "' data-cmt-own='" + item.memberId + "'>삭제</button></td></tr>"
                     )
                 });
-                $("#cmtNum").append("<span>"+res.length+"</span>");
+                $("#cmtNum").append("<span>" + res.length + "</span>");
             },
             error: function (err) {
                 console.log(err);
@@ -142,10 +152,10 @@
                 console.log(res)
                 $("#cmtTable").prepend(
                     "<tr class='" + res.id + "'><td>" + res.cmtWriter +
-                    "</td><td id='" + res.id + "'>" + res.cmtContents +
+                    "</td><td>" + res.cmtContents +
                     "</td><td>" + res.cmtCreatedTime +
-                    "</td><td><button class='upd-btn' data-cmt-id='" + res.id + "'>수정</button></td>" +
-                    "<td><button class='del-btn' data-cmt-id='" + res.id + "'>삭제</button></td></tr>"
+                    "</td><td><button class='upd-btn' data-cmt-id='" + res.id + "' data-cmt-own='" + res.memberId + "'>수정</button></td>" +
+                    "<td><button class='del-btn' data-cmt-id='" + res.id + "' data-cmt-own='" + res.memberId + "'>삭제</button></td></tr>"
                 );
                 $("#cmtContents").val('');
             },
@@ -155,49 +165,63 @@
         });
     });
 
+
     /** 댓글 삭제버튼 클릭시 댓글 삭제하기 */
     $("#cmtTable").on("click", ".del-btn", function () {
-        let cmtId = $(this).data("cmt-id");
-        // 댓글 쓴 사람만 삭제하도록 처리하기 (memberId로 처리)
-        $.ajax({
-            type: "delete",
-            url: "/cmt/" + cmtId,
-            success: function () {
-                alert("댓글이 삭제되었습니다");
-                $("tr").remove("." + cmtId);
-                //location.reload();
-            },
-            error: function (err) {
-                console.log("요청실패", err);
-            }
-        });
+        let cmtOwn = $(this).data("cmt-own");
+        if (cmtOwn == memberId) {
+            let cmtId = $(this).data("cmt-id");
+            $.ajax({
+                type: "delete",
+                url: "/cmt/" + cmtId,
+                success: function () {
+                    alert("댓글이 삭제되었습니다");
+                    $("tr").remove("." + cmtId);
+                },
+                error: function (err) {
+                    console.log("요청실패", err);
+                }
+            });
+        } else {
+            alert("본인만 삭제할 수 있습니다");
+        }
     });
 
     /** 댓글 수정버튼 팝업 취소 요청 */
     $("#cmt-cancel").on("click", function () {
-        // 댓글 수정창은 숨기고 다시 댓글 창이 보이도록 설정
-        $("#cmtUpdate").css('display', 'none');
-        $("#cmtWrite").css('display', 'block');
+        if ($("#cmtOwner").data("cmt-own") == memberId) {
+            // 댓글 수정창은 숨기고 다시 댓글 창이 보이도록 설정
+            $("#cmtUpdate").css('display', 'none');
+            $("#cmtWrite").css('display', 'block');
+        } else {
+            alert("댓글작성자가 아닙니다")
+        }
+        ;
     });
 
     /** 댓글 수정버튼 클릭시 팝업 요청 */
     $(document).on("click", ".upd-btn", function () {
-        let cmtId = $(this).data("cmt-id");
-        $.ajax({
-            type: "get",
-            url: "/cmt/update/" + cmtId,
-            success: function (res) {
-                // 댓글 창을 숨기고 댓글 수정창을 띄워준다
-                $("#cmtUpdate").css('display', 'block');
-                $("#cmtWrite").css('display', 'none');
-                $("#modalContents").val(res.cmtContents);
-                // 댓글 수정창에 있는 댓글 버튼에 data 속성을 추가해줌
-                $('#cmt-upd-btn').attr('data-cmt-id', cmtId)
-            },
-            error: function (err) {
-                console.log(err);
-            }
-        });
+        let cmtOwn = $(this).data("cmt-own");
+        if (cmtOwn == memberId) {
+            let cmtId = $(this).data("cmt-id");
+            $.ajax({
+                type: "get",
+                url: "/cmt/update/" + cmtId,
+                success: function (res) {
+                    // 댓글 창을 숨기고 댓글 수정창을 띄워준다
+                    $("#cmtUpdate").css('display', 'block');
+                    $("#cmtWrite").css('display', 'none');
+                    $("#modalContents").val(res.cmtContents);
+                    // 댓글 수정창에 있는 댓글 버튼에 data 속성을 추가해줌
+                    $('#cmt-upd-btn').attr('data-cmt-id', cmtId)
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        } else {
+            alert("본인만 수정할 수 있습니다");
+        }
     });
 
     /** 댓글 수정 요청 */

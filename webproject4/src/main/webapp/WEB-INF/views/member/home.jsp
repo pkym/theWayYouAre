@@ -23,7 +23,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/member/join" method="post">
+                <form action="/member/join" method="post" onsubmit="return checkAll()">
                     <input type="text" name="memberEmail" placeholder="이메일" id="memberEmail" onblur="emailCheck()">
                     <p id = "check-result"></p>
                     <input type="password" name="memberPw" placeholder="비밀번호">
@@ -84,6 +84,14 @@
             }
         });
     };
+
+    /** 빈칸 삽입 방지 */
+    function checkAll(){
+        if($("#memberEmail").val()==null||$("#memberPw").val()==null||$("#memberName").val()==null){
+            alert("입력해주세요")
+            return false;
+        }return true;
+    }
 
 </script>
 </body>

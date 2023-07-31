@@ -52,6 +52,12 @@
         </div>
     </div>
 </nav>
+    <!--조회수 top5 게시물-->
+    <div class="card-group">
+    </div>
+
+
+
 </c:if>
 <c:if test="${sessionScope.memberId == null}">
     <!-- 자연스럽게 로그인 페이지로 이동할 수 있는 방법 찾기-->
@@ -62,6 +68,32 @@
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 
 <script>
+    /** 페이지 시작시 조회수 top5 글 목록 불러오기 */
+    $(document).ready(function () {
+        // 게시글 불러오기
+        $.ajax({
+            type: "get",
+            url: "/board/list5",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+                $.each(res, (i, item) => {
+                    $(".card-group").append(
+                        '<div class="card">' +
+                        '<a href="/board/detail?id='+item.id+'"><img src="" class="card-img-top" alt="...">' +
+                        '</a><div class="card-body">' +
+                        '<h5 class="card-title">' + item.boardTitle + '</h5>' +
+                        '<p class="card-text">' + item.boardContents + '</p>' +
+                        '<p class="card-text"><small class="text-muted">' + item.boardCreatedTime + '</small></p>' +
+                        '</div></div>'
+                    )
+                });
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    });
     /** 글작성 페이지로 이동요청*/
     $("#write").on("click", function () {
         console.log("클릭이벤트발생");

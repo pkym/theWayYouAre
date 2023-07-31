@@ -17,38 +17,42 @@
           integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 </head>
 <body>
-<!-- 버튼 목록-->
-<div style="margin-top: 300px">
-    <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#myModal" type="button">회원정보수정하기
-        </button>
-        <button class="btn btn-secondary" id="delete">탈퇴하기</button>
-        <button class="btn btn-light" id="cancel">취소</button>
+<c:if test="${sessionScope.memberId != null}">
+    <!-- 버튼 목록-->
+    <div style="margin-top: 300px">
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#myModal" type="button">회원정보수정하기
+            </button>
+            <button class="btn btn-secondary" id="delete">탈퇴하기</button>
+            <button class="btn btn-light" id="cancel">취소</button>
+        </div>
     </div>
-</div>
-<!-- 회원정보 수정 모달창 -->
-<div id="myModal" class="modal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">회원정보수정</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="id" id="memberId" value="${updateMember.id}"><br>
-                이메일: <input class="form-control" type="text" id="memberEmail" value="${updateMember.memberEmail}"
-                            readonly>
-                비밀번호: <input class="form-control" type="password" id="memberPw" value="${updateMember.memberPw}">
-                이름: <input class="form-control" type="text" id="memberName"
-                           value="${updateMember.memberName}"><br>
-                <button class="btn btn-light" id="upd-btn">회원정보수정</button>
+    <!-- 회원정보 수정 모달창 -->
+    <div id="myModal" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">회원정보수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="memberId" value="${updateMember.id}"><br>
+                    이메일: <input class="form-control" type="text" id="memberEmail" value="${updateMember.memberEmail}"
+                                readonly>
+                    비밀번호: <input class="form-control" type="password" id="memberPw" value="${updateMember.memberPw}">
+                    이름: <input class="form-control" type="text" id="memberName"
+                               value="${updateMember.memberName}"><br>
+                    <button class="btn btn-light" id="upd-btn" onsubmit="return checkAll()">회원정보수정</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</c:if>
+<c:if test="${sessionScope.memberId == null}">
+    <!-- 자연스럽게 로그인 페이지로 이동할 수 있는 방법 찾기-->
+    <a type="button" class="btn btn-light" href="/">로그인하세요</a>
+</c:if>
 
-
-</body>
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"
         integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 <script>
@@ -60,8 +64,12 @@
 
     /** 회원 탈퇴하기 */
     $("#delete").on("click", function () {
-        alert("탈퇴하시겠습니까?");
-        location.href = "/member/" + memberId;
+        if (confirm("정말삭제하시겠습니까?") == true) {
+            location.href = "/member/" + memberId;
+        } else {
+            return false;
+        }
+
     });
 
     /** 회원 수정하기 */
@@ -69,29 +77,34 @@
         let memberName = $("#memberName").val();
         let memberPw = $("#memberPw").val();
         let memberEmail = $("#memberEmail").val();
-        console.log(memberId+memberName+memberPw);
-        $.ajax({
-            type: "post",
-            url: "/member/update",
-            data: {
-                "id": memberId,
-                "memberEmail" : memberEmail,
-                "memberName": memberName,
-                "memberPw": memberPw
-            },
-            success: function(res){
-                alert("수정되었습니다")
-                console.log(res);
-            },
-            error: function(err){
-                alert("다시 시도하세요")
-                console.log(err);
-            }
-        });
+        if (memberPw == '' || memberName == '') {
+            alert("입력해주세요")
+            return false;
+        } else {
+            $.ajax({
+                type: "post",
+                url: "/member/update",
+                data: {
+                    "id": memberId,
+                    "memberEmail": memberEmail,
+                    "memberName": memberName,
+                    "memberPw": memberPw
+                },
+                success: function (res) {
+                    alert("수정되었습니다")
+                    console.log(res);
+                },
+                error: function (err) {
+                    alert("다시 시도하세요")
+                    console.log(err);
+                }
+            });
+        }
     });
 
 
 </script>
 
+</body>
 
 </html>

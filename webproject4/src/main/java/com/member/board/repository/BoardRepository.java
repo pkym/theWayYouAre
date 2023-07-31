@@ -29,7 +29,7 @@ public class BoardRepository {
     /**
      * 글 불러오기
      */
-    public List<BoardDTO> findAll() {
+    public List<BoardDTO> findFive() {
         return sql.selectList("Board.findAll");
     }
 

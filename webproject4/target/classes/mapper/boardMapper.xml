@@ -11,7 +11,7 @@
         values(#{originalFileName},#{storedFileName},#{boardId})
     </insert>
     <select id="findAll" resultType="board">
-        select * from board_table order by id desc
+        select * from board_table order by id desc limit 5
     </select>
     <select id="findById" parameterType="Long" resultType="board">
         select * from board_table where id=#{id}

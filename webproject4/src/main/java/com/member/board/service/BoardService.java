@@ -52,8 +52,8 @@ public class BoardService {
     /**
      * 게시글 전체 가져오기 메소드
      */
-    public List<BoardDTO> findAll() {
-        return boardRepository.findAll();
+    public List<BoardDTO> findFive() {
+        return boardRepository.findFive();
     }
 
     /**
